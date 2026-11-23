@@ -49,3 +49,35 @@ class Availability(models.Model):
 
     def __str__(self):
         return f"{self.doctor} · {self.get_weekday_display()} {self.start_time}-{self.end_time}"
+
+
+class Appointment(models.Model):
+    class Status(models.TextChoices):
+        BOOKED = "booked", "Booked"
+        CANCELLED = "cancelled", "Cancelled"
+
+    doctor = models.ForeignKey(Doctor, on_delete=models.PROTECT, related_name="appointments")
+    patient = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="appointments"
+    )
+    start = models.DateTimeField()
+    end = models.DateTimeField()
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.BOOKED)
+    reason = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    cancelled_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["start"]
+        indexes = [
+            models.Index(fields=["doctor", "start"]),
+            models.Index(fields=["patient", "start"]),
+        ]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(end__gt=models.F("start")), name="appointment_end_after_start"
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.patient} with {self.doctor} at {self.start:%Y-%m-%d %H:%M}"

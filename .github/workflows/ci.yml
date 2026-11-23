@@ -35,7 +35,7 @@ jobs:
           --health-retries 10
     env:
       DATABASE_URL: postgres://app:app@localhost:5432/clinic
-      DJANGO_SECRET_KEY: ci-only-secret
+      DJANGO_SECRET_KEY: ci-only-secret-key-with-at-least-32-bytes
       DJANGO_DEBUG: "0"
     steps:
       - uses: actions/checkout@v4

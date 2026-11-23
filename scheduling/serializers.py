@@ -4,7 +4,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 
 from accounts.models import User
-from scheduling.models import Availability, Doctor
+from scheduling.models import Appointment, Availability, Doctor
 
 
 class DoctorSerializer(serializers.ModelSerializer):
@@ -87,3 +87,30 @@ class AvailabilitySerializer(serializers.ModelSerializer):
         if overlapping.exists():
             raise serializers.ValidationError("This block overlaps another availability block.")
         return attrs
+
+
+class SlotSerializer(serializers.Serializer):
+    start = serializers.DateTimeField()
+    end = serializers.DateTimeField()
+
+
+class AppointmentSerializer(serializers.ModelSerializer):
+    doctor_name = serializers.CharField(source="doctor.user.get_full_name", read_only=True)
+    patient_name = serializers.CharField(source="patient.get_full_name", read_only=True)
+
+    class Meta:
+        model = Appointment
+        fields = (
+            "id",
+            "doctor",
+            "doctor_name",
+            "patient",
+            "patient_name",
+            "start",
+            "end",
+            "status",
+            "reason",
+            "created_at",
+            "cancelled_at",
+        )
+        read_only_fields = ("patient", "end", "status", "created_at", "cancelled_at")

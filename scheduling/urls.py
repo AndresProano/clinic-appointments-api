@@ -1,9 +1,10 @@
 from rest_framework.routers import DefaultRouter
 
-from scheduling.views import AvailabilityViewSet, DoctorViewSet
+from scheduling.views import AppointmentViewSet, AvailabilityViewSet, DoctorViewSet
 
 router = DefaultRouter()
 router.register("doctors", DoctorViewSet, basename="doctor")
 router.register("availability", AvailabilityViewSet, basename="availability")
+router.register("appointments", AppointmentViewSet, basename="appointment")
 
 urlpatterns = router.urls
